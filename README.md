@@ -1,2 +1,5 @@
 # mentohust_openwrt_backup
 备份自己刷路由器的过程及相关软件。
+
+wndr4300v1为路由器固件
+两个ipk文件为mentohust相关文件
