@@ -86,8 +86,44 @@ mentohust -h
 ```
 
 **需要注意的点**
+
 1. 需要选对网卡，如果不确定具体选择那个网卡，利用`ifconfig`查看网卡进行选择
 2. 组播地址：1锐捷私有，DHCP方式：1二次认证
+
+## 开机自启动与断线重连
+
+经过上述的安装之后,在luci界面勾选上开机启动(随路由器启动mentohust)好像并不能成功的开机启动mentohust,所以通过手动配置的方式配置开机自启动同时配置断线重连.
+
+**开机自启动**只需要在`/etc/rc.local`里面添加下面这句即可
+
+``` bash
+mentohust 
+```
+
+**断线重连**没有采用corntab和mentohust自带的方式(好像有点问题),断线后也是不能自动重连,所以采用脚本的方式,通过不断地`ping`来监测网络通断进而重启`mentohust`.脚本代码如下
+
+```bash
+#!/bin/sh
+server="114.114.114.114" #不要是本地网关,容易被ban
+
+while true
+do
+    ping -c 2 $server
+    if [ $? != 0 ]
+    then
+        echo "#### Ping Failed, Retry"
+        mentohust -k
+        sleep 5
+        mentohust -c /etc/mentohust.conf > /root/mentohust.log
+        sleep 5
+    else
+        echo "#### The Network Is Fine"
+    fi
+    sleep 5
+done
+```
+
+之后将脚本代码加入`/etc/rc.local`来实现开机自启动与断线重连
 
 ## 问题记录
 
